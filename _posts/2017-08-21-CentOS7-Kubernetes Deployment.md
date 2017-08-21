@@ -2,15 +2,11 @@
 
 Tags: kubernetes
 
-[TOC]
-
 ## || 集群信息
 
 centos01 - 10.50.50.131 - Master
 centos02 - 10.50.50.132 - Minion
 centos03 - 10.50.50.133 - Minion
-
----
 
 ## || 各节点
 
@@ -64,7 +60,6 @@ KUBE_LOG_LEVEL="--v=0"
 KUBE_ALLOW_PRIV="--allow-privileged=false"
 KUBE_MASTER="--master=http://centos01:8080"
 ```
----
 
 ## || 主节点
 
@@ -120,7 +115,6 @@ done
 
 # sh master.sh
 ```
----
 
 ## || 计算节点
 
@@ -163,7 +157,6 @@ done
 # kubectl config set-context default-context --cluster=default-cluster --user=default-admin
 # kubectl config use-context default-context
 ```
----
 
 ## || 查看信息
 
