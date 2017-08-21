@@ -1,6 +1,4 @@
-﻿# CentOS7-Kubernetes 部署手册
-
-Tags: kubernetes
+# CentOS7-Kubernetes 部署手册
 
 ## || 集群信息
 
