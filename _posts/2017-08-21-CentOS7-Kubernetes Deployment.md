@@ -1,10 +1,9 @@
-# CentOS7-Kubernetes 部署手册
 
 ## || 集群信息
 
-centos01 - 10.50.50.131 - Master
-centos02 - 10.50.50.132 - Minion
-centos03 - 10.50.50.133 - Minion
+centos01 - 10.50.50.131 - Master  
+centos02 - 10.50.50.132 - Minion  
+centos03 - 10.50.50.133 - Minion  
 
 ## || 各节点
 
