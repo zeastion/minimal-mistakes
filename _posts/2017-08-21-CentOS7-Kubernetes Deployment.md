@@ -1,6 +1,6 @@
 ﻿# CentOS7-Kubernetes 部署手册
 
-标签： kubernetes
+Tags: kubernetes
 
 [TOC]
 
