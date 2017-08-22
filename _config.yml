@@ -78,7 +78,7 @@ analytics:
 # Site Author
 author:
   name             : "ZEASTION"
-  avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+  avatar           : "/assets/images/bio-photo.jpg"
   bio              : "A-Lu"
   location         : "ShangHai"
   email            : 
@@ -89,7 +89,7 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  github           :
+  github           : "https://github.com/zeastion"
   gitlab           :
   google_plus      :
   keybase          :
@@ -242,6 +242,6 @@ defaults:
       layout: single
       author_profile: true
       read_time: true
-      comments: # true
+      comments:  true
       share: true
       related: true

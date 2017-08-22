@@ -1,4 +1,4 @@
-
+﻿
 ## || 集群信息
 
 centos01 - 10.50.50.131 - Master  
@@ -16,7 +16,7 @@ centos03 - 10.50.50.133 - Minion
 10.50.50.133    centos03
 ```
 
-### 2- 配置yum源
+### 2- 配置 yum 源
 
 ```bash
 # vim /etc/yum.repos.d/virt7-docker-common-release.repo
@@ -60,7 +60,7 @@ KUBE_MASTER="--master=http://centos01:8080"
 
 ## || 主节点
 
-### 1- Etcd配置
+### 1- Etcd 配置
 
 ```bash
 # vim /etc/etcd/etcd.conf
@@ -70,7 +70,7 @@ ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:2379"
 ETCD_ADVERTISE_CLIENT_URLS="http://0.0.0.0:2379"
 ```
 
-### 2- Apiserver配置
+### 2- Apiserver 配置
 
 暂时去掉 ServiceAccount
 
@@ -83,7 +83,7 @@ KUBE_ADMISSION_CONTROL="--admission-control=NamespaceLifecycle,NamespaceExists,L
 KUBE_API_ARGS=""
 ```
 
-### 3- 启动Etcd，创建flannel网段
+### 3- 启动 Etcd，创建 flannel 网段
 
 ```bash
 # systemctl start etcd
@@ -92,7 +92,7 @@ KUBE_API_ARGS=""
 # etcdctl mk /kube-centos/network/config "{ \"Network\": \"172.30.0.0/16\", \"SubnetLen\": 24, \"Backend\": { \"Type\": \"vxlan\" } }"
 ```
 
-### 4- Flannel配置
+### 4- Flannel 配置
 
 ```bash
 # vim /etc/sysconfig/flanneld
@@ -100,7 +100,7 @@ FLANNEL_ETCD_ENDPOINTS="http://centos01:2379"
 FLANNEL_ETCD_PREFIX="/kube-centos/network"
 ```
 
-### 5- Master各服务启动脚本
+### 5- Master 各服务启动脚本
 
 ```bash
 # vim master.sh
@@ -112,6 +112,41 @@ done
 
 # sh master.sh
 ```
+
+### 6- Web UI 界面
+
+| 兼容性 | Kubernetes 1.4 | Kubernetes 1.5 | kubernetes 1.6 | Kubernetes 1.7 | 
+| ------------  | ------------:  | ------------:  | ------------:  | ------------:  | 
+| Dashboard 1.4 | ✓ | ✕ | ✕ | ✕ |
+| Dashboard 1.5 | ✕ | ✓ | ✕ | ✕ |
+| Dashboard 1.6 | ✕ | ✕ | ✓ | ? | 
+| Dashboard 1.7 | ✕ | ✕ | ? | ✓ |
+
+选择了没有授权验证的 1.5 简化版本
+
+下载示例 Yaml 文件，再修改 apiserver-host 参数
+
+```bash
+# wget https://git.io/kube-dashboard-no-rbac
+
+# vim kube-dashboard-no-rbac 
+...
+image: googlecontainer/kubernetes-dashboard-amd64:v1.5.1
+...
+args:
+  - --apiserver-host=http://10.50.50.131:8080
+...
+
+# kubectl create -f kube-dashboard-no-rbac
+
+# kubectl get pods -o=wide --namespace=kube-system
+NAME                                    READY     STATUS    RESTARTS   AGE       IP            NODE
+kubernetes-dashboard-1800905438-6v5cx   1/1       Running   0          8m        172.30.14.2   centos02
+```
+
+预览，还没配置监控 Heapster
+
+![k8s-ui](http://ov30w4cpi.bkt.clouddn.com/k8s-ui-01.png)
 
 ## || 计算节点
 
