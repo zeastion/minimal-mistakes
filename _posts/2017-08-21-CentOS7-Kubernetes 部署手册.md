@@ -1,4 +1,5 @@
-﻿
+﻿Kubernetes is an open-source system for automating deployment, scaling, and management of containerized applications.
+
 ## || 集群信息
 
 centos01 - 10.50.50.131 - Master  
