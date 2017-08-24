@@ -15,9 +15,9 @@ skydns 的 RC 配置文件中共包含 4 个容器：etcd、kube2sky、skydns、
 
 其中：
 
---kube-master-url 参数指定 Master 节点物理 IP 和端口
+\--kube-master-url 参数指定 Master 节点物理 IP 和端口
 
---domain 参数设置 Kubernetes 集群中 Service 所属域名
+\--domain 参数设置 Kubernetes 集群中 Service 所属域名
 
 ```bash
 # vim skydns-rc.yaml
@@ -186,9 +186,9 @@ kubernetes-dashboard   10.254.213.135   <none>        80/TCP          1d
 
 每台计算节点 kubelet 添加两个启动参数：
 
---cluster_dns=10.254.0.100
+\--cluster_dns=10.254.0.100
 
---cluster_domain=cluster.local
+\--cluster_domain=cluster.local
 
 ```bash
 # vim /etc/kubernetes/kubelet
