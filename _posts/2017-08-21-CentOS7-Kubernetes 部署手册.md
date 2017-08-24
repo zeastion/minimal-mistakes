@@ -113,7 +113,7 @@ done
 # sh master.sh
 ```
 
-### 6- Web UI 界面
+### 6- Web UI 界面（待计算节点配置完成后再做此步）
 
 | 兼容性 | Kubernetes 1.4 | Kubernetes 1.5 | kubernetes 1.6 | Kubernetes 1.7 | 
 | ------------  | ------------:  | ------------:  | ------------:  | ------------:  | 
