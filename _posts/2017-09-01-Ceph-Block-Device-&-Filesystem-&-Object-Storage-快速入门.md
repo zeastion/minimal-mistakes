@@ -218,7 +218,7 @@ e5: 1/1/1 up {0=ceph01=up:active}
 
 ### 4- 挂载
 
-**把 Ceph FS 挂载为内核驱动**
+-a- 把 Ceph FS 挂载为内核驱动
 
 指向 MDS 地址 6789 端口
 
@@ -249,7 +249,7 @@ Filesystem           Size  Used Avail Use% Mounted on
 10.50.50.134:6789:/   79G   22G   57G  28% /mnt/mycephfs
 ```
 
-**把 Ceph FS 挂载为用户空间文件系统（FUSE）**
+-b- 把 Ceph FS 挂载为用户空间文件系统（FUSE）
 
 ```bash
 # sudo apt-get install ceph-fuse
