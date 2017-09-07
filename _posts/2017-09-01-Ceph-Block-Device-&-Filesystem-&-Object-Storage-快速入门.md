@@ -313,3 +313,4 @@ tcp        0      0 0.0.0.0:8080            0.0.0.0:*               LISTEN      
 
 访问
 
+![rgw-web](http://ov30w4cpi.bkt.clouddn.com/rgw8080.png)
