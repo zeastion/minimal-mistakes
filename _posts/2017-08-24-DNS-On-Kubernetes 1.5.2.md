@@ -222,7 +222,9 @@ spec:
       - sleep
       - "3600"
 ```
+
 用 busybox 解析
+
 ```bash
 # kubectl exec busybox -- nslookup kube-dns.kube-system
 Server:    10.254.0.100
