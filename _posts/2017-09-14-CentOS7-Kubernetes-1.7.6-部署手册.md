@@ -1,9 +1,9 @@
-﻿
+因为万恶的RBAC
 
 
 ## || 所有节点
 
-### 0- SELinux & iptables
+### 0- SELinux & iptables & hosts
 
 关闭 SELinux 以便容器可以访问宿主机文件系统
 
@@ -27,6 +27,15 @@ SELINUXTYPE=targeted
 # iptables -F
 
 # service iptables save
+```
+
+域名解析
+
+```bash
+# vim /etc/hosts
+10.50.50.139    k8s01
+10.50.50.140    k8s02
+10.50.50.141    k8s03
 ```
 
 ### 1- Docker
@@ -120,6 +129,11 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 # docker pull gcr.io/google_containers/k8s-dns-sidecar-amd64:1.14.4
 
 # docker pull gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:1.14.4
+
+# docker pull gcr.io/google_containers/kubernetes-dashboard-init-amd64:v1.0.0
+
+# docker pull gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.0
+
 ```
 
 如果不能 fanqiang，可以从我的镜像站下载，再通过 tag 改成 google 的镜像名
@@ -180,7 +194,7 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 You can now join any number of machines by running the following on each node
 as root:
 
-  kubeadm join --token 342e1e.aa80457d33898003 10.50.50.139:6443
+  kubeadm join --token 593d4e.94b88e40f8c54d73 10.50.50.139:6443
 ```
 
 **注：**
@@ -199,9 +213,8 @@ https://github.com/moby/moby/issues/24809
 -b- 保存好凭证用于添加节点
 
 ```bash
-kubeadm join --token 342e1e.aa80457d33898003 10.50.50.139:6443
+kubeadm join --token 593d4e.94b88e40f8c54d73 10.50.50.139:6443
 ```
-
 
 ### 3- 添加 kubectl 配置
  
@@ -224,27 +237,25 @@ NetworkReady=false reason:NetworkPluginNotReady message:docker: network plugin i
 
 ```bash
 # kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+clusterrole "flannel" created
+clusterrolebinding "flannel" created
 serviceaccount "flannel" created
 configmap "kube-flannel-cfg" created
 daemonset "kube-flannel-ds" created
-
-# kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel-rbac.yml
-clusterrole "flannel" created
-clusterrolebinding "flannel" created
 ```
 
 网络的 pod 安装成功后，还会装上 kube-dns 的 pod，查看当前状态
 
 ```bash
-# kubectl get pods --all-namespaces
-NAMESPACE     NAME                            READY     STATUS    RESTARTS   AGE
-kube-system   etcd-k8s01                      1/1       Running   0          3m
-kube-system   kube-apiserver-k8s01            1/1       Running   0          3m
-kube-system   kube-controller-manager-k8s01   1/1       Running   0          3m
-kube-system   kube-dns-2425271678-r4zr1       3/3       Running   0          4m
-kube-system   kube-flannel-ds-f84jf           2/2       Running   0          1m
-kube-system   kube-proxy-3z5gt                1/1       Running   0          4m
-kube-system   kube-scheduler-k8s01            1/1       Running   0          3m
+# kubectl get pods --namespace=kube-system
+NAME                            READY     STATUS    RESTARTS   AGE
+etcd-k8s01                      1/1       Running   0          17m
+kube-apiserver-k8s01            1/1       Running   0          17m
+kube-controller-manager-k8s01   1/1       Running   0          17m
+kube-dns-2425271678-rrp36       3/3       Running   0          17m
+kube-flannel-ds-q5bc1           1/1       Running   0          5m
+kube-proxy-lq776                1/1       Running   0          17m
+kube-scheduler-k8s01            1/1       Running   0          17m
 ```
 
 ### 5- Dashboard
@@ -265,19 +276,149 @@ https://github.com/kubernetes/dashboard
 
 # wget https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
 
+# kubectl create -f kubernetes-dashboard.yaml 
+secret "kubernetes-dashboard-certs" created
+serviceaccount "kubernetes-dashboard" created
+role "kubernetes-dashboard-minimal" created
+rolebinding "kubernetes-dashboard-minimal" created
+deployment "kubernetes-dashboard" created
+service "kubernetes-dashboard" created
 ```
 
-# 待续
-***
-```bash
-# kubectl get pods --all-namespaces
-NAMESPACE     NAME                                         READY     STATUS    RESTARTS   AGE
-...
-kube-system   kubernetes-dashboard-head-2208681577-76wqc   1/1       Running   0          57s
-```
+**注：**
+
+目前还有问题 https://github.com/kubernetes/dashboard/issues/2397
+
+回答的办法并不能解决
 
 
 ## || Nodes 计算节点
+
+### 1- 预先下载镜像
+
+```bash
+# docker pull gcr.io/google_containers/pause-amd64:3.0
+
+# docker pull gcr.io/google_containers/kube-proxy-amd64:v1.7.6
+```
+
+### 2- 加入集群
+
+```bash
+# kubeadm join --token 593d4e.94b88e40f8c54d73 10.50.50.139:6443
+[kubeadm] WARNING: kubeadm is in beta, please do not use it for production clusters.
+[preflight] Running pre-flight checks
+[discovery] Trying to connect to API Server "10.50.50.139:6443"
+[discovery] Created cluster-info discovery client, requesting info from "https://10.50.50.139:6443"
+[discovery] Cluster info signature and contents are valid, will use API Server "https://10.50.50.139:6443"
+[discovery] Successfully established connection with API Server "10.50.50.139:6443"
+[bootstrap] Detected server version: v1.7.6
+[bootstrap] The server supports the Certificates API (certificates.k8s.io/v1beta1)
+[csr] Created API client to obtain unique certificate for this node, generating keys and certificate signing request
+[csr] Received signed certificate from the API server, generating KubeConfig...
+[kubeconfig] Wrote KubeConfig file to disk: "/etc/kubernetes/kubelet.conf"
+
+Node join complete:
+* Certificate signing request sent to master and response
+  received.
+* Kubelet informed of new secure connection details.
+
+Run 'kubectl get nodes' on the master to see this machine join.
+```
+
+
+## || 测试
+
+1- 查看 api
+
+https://10.50.50.139:6443/api/v1
+
+2- sock-shop 
+
+https://github.com/microservices-demo/microservices-demo
+
+```bash
+# kubectl create namespace sock-shop
+namespace "sock-shop" created
+
+# kubectl apply -n sock-shop -f "https://github.com/microservices-demo/microservices-demo/blob/master/deploy/kubernetes/complete-demo.yaml?raw=true"
+deployment "carts-db" created
+service "carts-db" created
+deployment "carts" created
+service "carts" created
+deployment "catalogue-db" created
+service "catalogue-db" created
+deployment "catalogue" created
+service "catalogue" created
+deployment "front-end" created
+service "front-end" created
+deployment "orders-db" created
+service "orders-db" created
+deployment "orders" created
+service "orders" created
+deployment "payment" created
+service "payment" created
+deployment "queue-master" created
+service "queue-master" created
+deployment "rabbitmq" created
+service "rabbitmq" created
+deployment "shipping" created
+service "shipping" created
+deployment "user-db" created
+service "user-db" created
+deployment "user" created
+service "user" created
+```
+
+查看其信息
+
+```bash
+# kubectl -n sock-shop get svc front-end
+NAME        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+front-end   10.105.162.95   <nodes>       80:30001/TCP   2m
+
+# kubectl get po --namespace=sock-shop -o wide
+NAME                            READY     STATUS    RESTARTS   AGE       IP            NODE
+carts-511261774-8zx0m           1/1       Running   0          10m       10.244.2.3    k8s02
+carts-db-549516398-7g4fb        1/1       Running   0          10m       10.244.2.2    k8s02
+catalogue-4293036822-lk1wd      1/1       Running   0          10m       10.244.2.5    k8s02
+catalogue-db-1846494424-43lm2   1/1       Running   0          10m       10.244.2.4    k8s02
+front-end-2337481689-4jwnz      1/1       Running   0          10m       10.244.2.7    k8s02
+orders-208161811-4ndhm          1/1       Running   0          10m       10.244.2.8    k8s02
+orders-db-2069777334-h09vs      1/1       Running   0          10m       10.244.2.6    k8s02
+payment-3050936124-mxxxd        1/1       Running   0          10m       10.244.2.9    k8s02
+queue-master-2067646375-9pn6k   1/1       Running   0          10m       10.244.2.10   k8s02
+rabbitmq-241640118-kw4ws        1/1       Running   0          10m       10.244.2.14   k8s02
+shipping-3132821717-644hc       1/1       Running   0          10m       10.244.2.11   k8s02
+user-1574605338-xzrhn           1/1       Running   0          10m       10.244.2.12   k8s02
+user-db-2947298815-xbhjx        1/1       Running   0          10m       10.244.2.13   k8s02
+```
+
+网页访问
+
+![sock-shop](http://ov30w4cpi.bkt.clouddn.com/sock-shop.png)
+
+
+## || 删除节点
+
+在 Master 上
+
+```bash
+# kubectl drain <node name> --delete-local-data --force --ignore-daemonsets
+
+# kubectl delete node <node name>
+```
+
+在 Node 上
+
+```bash
+# kubeadm reset
+```
+
+
+
+
+
 
 
 2- Kubectl
