@@ -1,4 +1,4 @@
-因为万恶的RBAC
+RBAC
 
 
 ## || 所有节点
@@ -96,7 +96,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 # yum install kubelet kubeadm kubectl -y
 ```
 
-一共安装五个包，不能 fanqiang 的话，点击这里下载
+一共安装五个包，不能 fanqiang 的话，点击[这里下载](https://pan.baidu.com/s/1dEHXOLN)
 
 启动 kubelet 后会因为缺少配置文件一直报错，暂时不用理会
 
