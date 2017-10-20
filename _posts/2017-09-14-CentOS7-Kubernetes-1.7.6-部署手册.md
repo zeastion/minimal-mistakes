@@ -1,5 +1,10 @@
 RBAC
 
+查看最新稳定版本
+
+```bash
+curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt
+```
 
 ## || 所有节点
 
@@ -430,22 +435,4 @@ user-db-2947298815-xbhjx        1/1       Running   0          10m       10.244.
 
 ```bash
 # kubeadm reset
-```
-
-
-
-
-
-
-
-2- Kubectl
-
-下载最新的稳定版（目前为 1.7.6）
-
-```bash
-# curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-
-# chmod +x kubectl 
-
-# mv kubectl /usr/local/bin/kubectl
 ```
