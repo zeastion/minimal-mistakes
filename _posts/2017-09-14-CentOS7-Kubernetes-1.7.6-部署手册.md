@@ -287,9 +287,26 @@ service "kubernetes-dashboard" created
 
 **注：**
 
-目前还有问题 https://github.com/kubernetes/dashboard/issues/2397
+可能会有问题 https://github.com/kubernetes/dashboard/issues/2397
 
-回答的办法并不能解决
+解决办法是先删掉这个 pod，等他自动重建，（显示结果包含后面添加的 k8s02）
+
+```bash
+# kubectl delete pod kubernetes-dashboard-4167803980-xs3bp --namespace=kube-system
+
+# kubectl get pods --namespace=kube-system -o wide
+NAME                                    READY     STATUS    RESTARTS   AGE       IP             NODE
+etcd-k8s01                              1/1       Running   0          1d        10.50.50.139   k8s01
+kube-apiserver-k8s01                    1/1       Running   0          1d        10.50.50.139   k8s01
+kube-controller-manager-k8s01           1/1       Running   0          1d        10.50.50.139   k8s01
+kube-dns-2425271678-rrp36               3/3       Running   0          1d        10.244.0.2     k8s01
+kube-flannel-ds-5czg4                   1/1       Running   0          22h       10.50.50.140   k8s02
+kube-flannel-ds-q5bc1                   1/1       Running   0          1d        10.50.50.139   k8s01
+kube-proxy-lq776                        1/1       Running   0          1d        10.50.50.139   k8s01
+kube-proxy-rgs69                        1/1       Running   0          22h       10.50.50.140   k8s02
+kube-scheduler-k8s01                    1/1       Running   0          1d        10.50.50.139   k8s01
+kubernetes-dashboard-4167803980-9kmkj   1/1       Running   0          32s       10.244.0.5     k8s01
+```
 
 
 ## || Nodes 计算节点
