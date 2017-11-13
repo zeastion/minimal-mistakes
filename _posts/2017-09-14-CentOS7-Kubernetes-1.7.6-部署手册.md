@@ -157,8 +157,10 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 
 网络组件选择 Flannel，因此 --pod-network-cidr 参数配置为 10.244.0.0/16
 
+选择 1.7.6 版本
+
 ```bash
-# kubeadm init --pod-network-cidr=10.244.0.0/16         
+# kubeadm init --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.7.10
 [kubeadm] WARNING: kubeadm is in beta, please do not use it for production clusters.
 [init] Using Kubernetes version: v1.7.6
 [init] Using Authorization modes: [Node RBAC]
@@ -212,7 +214,7 @@ as root:
 
 https://github.com/moby/moby/issues/24809
 
-# echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables
+# sysctl net.bridge.bridge-nf-call-iptables=1
 ```
 
 -b- 保存好凭证用于添加节点
