@@ -1,5 +1,9 @@
 ﻿给 Kuberetes 集群添加 dashboard 及监控组件 heapster，使用 Nginx 做容器集群的 HTTPS 反向代理（SSL）
 
+预览效果
+
+![443index](http://ov30w4cpi.bkt.clouddn.com/443index.png)
+
 ## || Dashboard
 
 ### 1- 给 Kubernetes 集群添加 Dashboard
