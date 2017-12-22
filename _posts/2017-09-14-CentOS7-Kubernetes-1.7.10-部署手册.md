@@ -121,13 +121,13 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 
 # docker pull gcr.io/google_containers/etcd-amd64:3.0.17
 
-# docker pull gcr.io/google_containers/kube-scheduler-amd64:v1.7.6
+# docker pull gcr.io/google_containers/kube-scheduler-amd64:v1.7.10
 
-# docker pull gcr.io/google_containers/kube-controller-manager-amd64:v1.7.6
+# docker pull gcr.io/google_containers/kube-controller-manager-amd64:v1.7.10
 
-# docker pull gcr.io/google_containers/kube-apiserver-amd64:v1.7.6
+# docker pull gcr.io/google_containers/kube-apiserver-amd64:v1.7.10
 
-# docker pull gcr.io/google_containers/kube-proxy-amd64:v1.7.6
+# docker pull gcr.io/google_containers/kube-proxy-amd64:v1.7.10
 
 # docker pull gcr.io/google_containers/k8s-dns-kube-dns-amd64:1.14.4
 
@@ -157,12 +157,12 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 
 网络组件选择 Flannel，因此 --pod-network-cidr 参数配置为 10.244.0.0/16
 
-选择 1.7.6 版本
+选择 1.7.10 版本
 
 ```bash
 # kubeadm init --pod-network-cidr=10.244.0.0/16 --kubernetes-version=v1.7.10
 [kubeadm] WARNING: kubeadm is in beta, please do not use it for production clusters.
-[init] Using Kubernetes version: v1.7.6
+[init] Using Kubernetes version: v1.7.10
 [init] Using Authorization modes: [Node RBAC]
 [preflight] Running pre-flight checks
 [preflight] WARNING: firewalld is active, please ensure ports [6443 10250] are open or your cluster may not function correctly
@@ -323,7 +323,7 @@ kubernetes-dashboard-4167803980-9kmkj   1/1       Running   0          32s      
 ```bash
 # docker pull gcr.io/google_containers/pause-amd64:3.0
 
-# docker pull gcr.io/google_containers/kube-proxy-amd64:v1.7.6
+# docker pull gcr.io/google_containers/kube-proxy-amd64:v1.7.10
 ```
 
 ### 2- 加入集群
@@ -336,7 +336,7 @@ kubernetes-dashboard-4167803980-9kmkj   1/1       Running   0          32s      
 [discovery] Created cluster-info discovery client, requesting info from "https://10.50.50.139:6443"
 [discovery] Cluster info signature and contents are valid, will use API Server "https://10.50.50.139:6443"
 [discovery] Successfully established connection with API Server "10.50.50.139:6443"
-[bootstrap] Detected server version: v1.7.6
+[bootstrap] Detected server version: v1.7.10
 [bootstrap] The server supports the Certificates API (certificates.k8s.io/v1beta1)
 [csr] Created API client to obtain unique certificate for this node, generating keys and certificate signing request
 [csr] Received signed certificate from the API server, generating KubeConfig...
