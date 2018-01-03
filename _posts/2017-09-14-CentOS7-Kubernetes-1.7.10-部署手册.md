@@ -135,9 +135,9 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 
 # docker pull gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:1.14.4
 
-# docker pull gcr.io/google_containers/kubernetes-dashboard-init-amd64:v1.0.0
+# docker pull gcr.io/google_containers/kubernetes-dashboard-init-amd64:v1.0.1
 
-# docker pull gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.0
+# docker pull gcr.io/google_containers/kubernetes-dashboard-amd64:v1.7.1
 
 ```
 
