@@ -150,8 +150,8 @@ kube-dns               10.96.0.10       <none>        53/UDP,53/TCP   89d       
 ```
 
 当新的 Service 创建后，kube-dns 会添加该 Service 的 DNS 记录，
-可以通过 '<Service_Name>.<Namespace_Name>' 访问 Service，
-相同 namespace 可以直接访问 '<Service_name>'
+可以通过 \<Service_Name\>.\<Namespace_Name\> 访问 Service，
+相同 namespace 可以直接访问 \<Service_name\>
 
 ```bash
 # kubectl run busybox --rm -it --image=busybox /bin/sh
@@ -176,7 +176,7 @@ Address 1: 10.96.203.6 httpd-svc.default.svc.cluster.local
 
 - 通过 'ClusterIP' - 集群内的节点和 Pod 可以访问，但集群外部无法联通
 
-- 通过 'NodePort' - Service 使用集群节点的静态端口对外提供服务，外部访问 '<NodeIP>:<NodePort>'
+- 通过 'NodePort' - Service 使用集群节点的静态端口对外提供服务，外部访问 \<NodeIP\>:\<NodePort\>
 
 在一个 Yaml 文件中创建 Deployment 和 Service，多种资源使用 '---' 分隔
 
