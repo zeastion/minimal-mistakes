@@ -150,7 +150,9 @@ kube-dns               10.96.0.10       <none>        53/UDP,53/TCP   89d       
 ```
 
 当新的 Service 创建后，kube-dns 会添加该 Service 的 DNS 记录，
+
 可以通过 \<Service_Name\>.\<Namespace_Name\> 访问 Service，
+
 相同 namespace 可以直接访问 \<Service_name\>
 
 ```bash
