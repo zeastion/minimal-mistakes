@@ -47,6 +47,7 @@ httpd-741508562-jvgbg   1/1       Running   0          25s       10.244.2.22   f
 ```
 
 使用 'selector' 选定 'labels' 为 'run: httpd' 的 Pod
+
 将 Service 的 8080 端口映射到 Pod 的 80 端口，且指定 TCP 协议
 
 ```bash
@@ -108,6 +109,7 @@ Service 的 Cluster IP 是通过 iptables 实现的虚拟 IP
 ```
 
 第一条源自 10.244.0.0/16（集群内 Pod IP）要访问 httpd-svc 则允许
+
 其他源访问 httpd-svc，跳转到 'KUBE-SVC-RL3JAE4GN7VOGDGP' 规则
 
 ```bash
@@ -134,6 +136,7 @@ Service 的 Cluster IP 是通过 iptables 实现的虚拟 IP
 ```
 
 实现了从 Cluster IP 到 Pod IP 的均衡负载（轮询）
+
 集群中每个节点都配置了相同 iptables 规则，保证集群内都可以正常访问 Service
 
 
@@ -147,8 +150,8 @@ kube-dns               10.96.0.10       <none>        53/UDP,53/TCP   89d       
 ```
 
 当新的 Service 创建后，kube-dns 会添加该 Service 的 DNS 记录，
-可以通过 <Service_Name>.<Namespace_Name> 访问 Service，
-相同 namespace 可以直接访问 <Service_name>
+可以通过 '<Service_Name>.<Namespace_Name>' 访问 Service，
+相同 namespace 可以直接访问 '<Service_name>'
 
 ```bash
 # kubectl run busybox --rm -it --image=busybox /bin/sh
@@ -173,7 +176,7 @@ Address 1: 10.96.203.6 httpd-svc.default.svc.cluster.local
 
 - 通过 'ClusterIP' - 集群内的节点和 Pod 可以访问，但集群外部无法联通
 
-- 通过 'NodePort' - Service 使用集群节点的静态端口对外提供服务，外部访问 <NodeIP>:<NodePort>
+- 通过 'NodePort' - Service 使用集群节点的静态端口对外提供服务，外部访问 '<NodeIP>:<NodePort>'
 
 在一个 Yaml 文件中创建 Deployment 和 Service，多种资源使用 '---' 分隔
 
@@ -274,7 +277,13 @@ tcp6       0      0 :::30000                :::*                    LISTEN      
 -A KUBE-SVC-7P7YXYLZA3ZMJCMD -m comment --comment "default/myhttpd-svc:" -j KUBE-SEP-3ZRQHJQFDZH6HPK7
 ```
 
-规则 'KUBE-SVC-7P7YXYLZA3ZMJCMD' 以各 1/3 比率分配到 'KUBE-SEP-5JFNR2OVUEO7ADZR'、'KUBE-SEP-MXGVDRPRKF4FCFQ7'、'KUBE-SEP-3ZRQHJQFDZH6HPK7'
+规则 'KUBE-SVC-7P7YXYLZA3ZMJCMD' 以各 1/3 比率分配到 
+
+'KUBE-SEP-5JFNR2OVUEO7ADZR';
+
+'KUBE-SEP-MXGVDRPRKF4FCFQ7';
+
+'KUBE-SEP-3ZRQHJQFDZH6HPK7'
 
 查看这三条规则
 
@@ -296,5 +305,3 @@ tcp6       0      0 :::30000                :::*                    LISTEN      
 ```
 
 最终请求落到了 Pod 上
-
-
