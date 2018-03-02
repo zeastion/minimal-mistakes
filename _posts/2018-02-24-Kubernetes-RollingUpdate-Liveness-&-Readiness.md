@@ -210,7 +210,7 @@ K8s 默认的健康检查机制是侦测容器进程结束时的返回码，若�
 
 可以通过自定义的 'Liveness' 规则，更细致判断容器业务是否健康
 
-<b>command</b>
+#### command
 
 
 ```yaml
@@ -269,7 +269,7 @@ livenesstest   1/1       Running   10         27m
 - 参数 'initialDelaySeconds： 10' 指定容器启动 10s 后开始执行探测，给业务一个容器启动的准备时间
 - 参数 'periodSeconds: 5' 指定每 5s 执行一次探测，若连续三次 Liveness 探测失败，则杀掉并重启容器
 
-<b>HTTP request</b>
+#### HTTP request
 
 使用 liveness 做 HTTP 请求探测
 
@@ -325,7 +325,7 @@ Events:
 
 镜像 'k8s.gcr.io/liveness' 代码中，前十秒返回 200，之后返回 500。
 
-<b>TCP</b>
+#### TCP
 
 第三种方式是 TCP Socket，kubelet 会尝试在容器特定端口打开一个 socket，如果能建立连接则判定业务健康。结合下面 Readiness 一起实验。
 
