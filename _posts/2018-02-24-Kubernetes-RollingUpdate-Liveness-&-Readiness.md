@@ -1,6 +1,6 @@
 Kubernetes 管理业务更新
 
-## Rolling Update
+## || Rolling Update
 
 滚动更新开始至更新部分副本，确保成功后再更新更多副本，最终完成所有副本更新。
 整个过程中，始终有副本在运行，保证了业务不中断。
@@ -102,7 +102,7 @@ Events:
 两个 ReplicaSet 每次替换一个 Pod ，还可以通过参数 'maxSurge' & 'maxUnavailable' 精细控制更替的 Pod 数量
 
 
-## 回滚
+## || 回滚
 
 'revision' 保存每次应用更新的配置信息，从而可以回滚到某个特定版次
 
@@ -200,7 +200,7 @@ REVISION        CHANGE-CAUSE
 ```
 
 
-## 健康检查
+## || 健康检查
 
 K8s 默认的健康检查机制是侦测容器进程结束时的返回码，若非零则认为故障，根据 'restartPolicy' 重启容器
 
@@ -456,7 +456,7 @@ Events:
   3m            3m              1       kubelet, k8s03          spec.containers{goproxy}        Normal          Started                    Started container
 ```
 
-## Liveness & Readiness 在 Rolling Update 场景中实践
+## || Liveness & Readiness 在 Rolling Update 场景中实践
 
 在业务更新过程中，新镜像可能存在潜在的未知故障，原副本全部被问题副本替换，会造成业务不可用的严重后果。使用自定义的健康检查，新副本只有通过 Readiness 探测，才会被添加到 Service，若未通过，则现有副本不会被全部替换，保障业务正常运行。
 
