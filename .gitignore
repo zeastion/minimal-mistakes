@@ -13,3 +13,8 @@ Gemfile.lock
 node_modules
 npm-debug.log*
 *.bak
+*.ini
+_posts/._sync_57f6f60294ae.db
+_posts/.owncloudsync.log
+_posts/._sync_57f6f60294ae.db-shm
+_posts/._sync_57f6f60294ae.db-wal
