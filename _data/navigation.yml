@@ -1,9 +1,7 @@
 # main links
 main:
-  - title: "技术"
-    url: /technology/
-  - title: "模型"
-    url: /scale_models/
+  - title: "类目"
+    url: /categories/
   - title: "旧博客"
     url: http://blog.sina.com.cn/zeastion
   #- title: "Quick-Start Guide"
