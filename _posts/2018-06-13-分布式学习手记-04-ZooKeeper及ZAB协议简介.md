@@ -4,7 +4,7 @@ categories:
   - 分布式
 date: 2018-06-13
 toc: true
-toc_label: ""
+toc_label: "ZooKeeper"
 toc_icon: "align-left"
 header:
   teaser: /assets/images/fbs_teaser.gif
@@ -96,7 +96,7 @@ ZAB 协议包括消息广播和崩溃恢复两个过程，细分为三个阶段�
 
 参与协议的每一个分布式进程，会循环执行这三个阶段，一个循环称为一个主进程周期。
 
-#### 阶段 1 - 发现
+== 阶段 1 - 发现
 
 发现阶段即 Leader 选举过程，在多个分布式进程中选举出主进程。
 
@@ -112,7 +112,7 @@ ZAB 协议包括消息广播和崩溃恢复两个过程，细分为三个阶段�
 
   - 这个 Ack 消息包含当前 Follower 的 epoch<sub>new</sub> 和该 Follower 的历史事务提议集合 I<sub>提</sub>
 
-#### 阶段 2 - 同步
+== 阶段 2 - 同步
 
 2.1 L<sub>准</sub> 将 epoch<sub>new</sub> 和 I<sub>提</sub> 打包成 NewLeader(e,I) 消息发送给所有 Follower；
 
@@ -122,7 +122,7 @@ ZAB 协议包括消息广播和崩溃恢复两个过程，细分为三个阶段�
 
 2.4 Follower 收到 L<sub>new</sub> 的 Commit 消息后，依次处理并提交所有前期事务集合；
 
-#### 阶段 3 - 广播
+== 阶段 3 - 广播
 
 完成数据同步后，崩溃恢复阶段结束，ZAB 协议开始接收客户端新的事务请求，进行消息广播流程
 
@@ -140,7 +140,7 @@ ZAB 协议包括消息广播和崩溃恢复两个过程，细分为三个阶段�
 
 - LOOKING - Leader 选举阶段
 
-  框架启动阶段，所有进程的初始化状态，或 Leader 崩溃时，Follower 会转换到该状态。处于 LOOKING 状态的进程都会试图选举一个新的 Leader。
+  框架启动阶段，所有进程的初始化状态；或 Leader 崩溃时，Follower 会转换到该状态。处于 LOOKING 状态的进程都会试图选举一个新的 Leader。
 
 - FOLLOWING - Follower 节点和 Leader 保持同步状态
 
