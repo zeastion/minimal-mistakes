@@ -7,7 +7,7 @@ toc: true
 toc_label: "部署过程"
 toc_icon: "align-left"
 header:
-  teaser: /assets/images/fbs_teaser.gif
+  teaser: /assets/images/openstacklogo.jpeg
 ---
 
 > 基础环境 & Keystone & Glance & Nova
