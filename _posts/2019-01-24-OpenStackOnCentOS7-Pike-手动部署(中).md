@@ -10,7 +10,7 @@ header:
   teaser: /assets/images/openstacklogo.jpeg
 ---
 
-> Neutron & Dashboard
+> Neutron & Dashboard & Cinder
 
 ## Neutron
 
@@ -621,8 +621,6 @@ header:
 
 ## Dashboard
 
-
-
 ### controller01
 
 - 安装配置
@@ -707,3 +705,444 @@ header:
 - 验证
 
   访问 http://controller01/dashboard
+
+
+## Cinder
+
+块存储服务
+
+### block01
+
+块存储节点提前准备一块独立盘 /dev/sdb，使用 LVM 提供逻辑卷，并通过 iSCSI 协议提供给实例
+
+- 安装配置
+
+  1. 工具包
+
+     ```
+     # yum install lvm2 device-mapper-persistent-data -y
+
+     # systemctl enable lvm2-lvmetad.service
+
+     # systemctl start lvm2-lvmetad.service
+     ```
+
+  2. LVM 配置
+
+     ```
+     # pvcreate /dev/sdb
+     Physical volume "/dev/sdb" successfully created.
+
+     # vgcreate cinder-volumes /dev/sdb
+     Volume group "cinder-volumes" successfully created
+     ```
+
+     LVM 默认会扫描 /dev 下所有设备，改为只扫描 cinder-volume 卷组设备 /dev/sdb
+
+     注：本环境系统盘 /dev/sda 没使用 LVM，不必加入扫描范围
+
+     ```
+     # vim /etc/lvm/lvm.conf
+     ...
+     devices{
+     ...
+     filter = [ "a/sdb/", "r/.*/"]
+     ...
+     }
+     ```
+
+     测试
+
+     ```
+     # vgs -vvvv
+     ```
+
+  3. Cinder 组件
+
+     ```
+     # yum install openstack-cinder targetcli python-keystone -y
+     ```
+
+  4. 配置
+
+     ```
+     # vim /etc/cinder/cinder.conf
+     ```
+
+     数据库
+
+     ```
+     [database]
+     ...
+     connection = mysql+pymysql://cinder:qwe123@controller01/cinder
+     ```
+
+     RabbitMQ
+
+     ```
+     [DEFAULT]
+     ...
+     transport_url = rabbit://openstack:qwe123@controller01
+     ```
+
+     Keystone
+
+     ```
+     [DEFAULT]
+     ...
+     auth_strategy = keystone
+     ...
+     [keystone_authtoken]
+     ...
+     auth_uri = http://controller01:5000
+     auth_url = http://controller01:35357
+     memcached_servers = controller01:11211
+     auth_type = password
+     project_domain_name = default
+     user_domain_name = default
+     project_name = service
+     username = cinder
+     password = qwe123
+     ```
+
+     my_ip
+
+     ```
+     [DEFAULT]
+     ...
+     my_ip = 10.0.0.41
+     ```
+
+     LVM
+
+     ```
+     volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
+     volume_group = cinder-volumes
+     iscsi_protocol = iscsi
+     iscsi_helper = lioadm
+     ```
+
+     启用 LVM 后端
+
+     ```
+     [DEFAULT]
+     ...
+     enabled_backends = lvm
+     ```
+
+     Glance
+
+     ```
+     [DEFAULT]
+     ...
+     glance_api_servers = http://controller01:9292
+     ```
+
+     锁路径
+
+     ```
+     [oslo_concurrency]
+     ...
+     lock_path = /var/lib/cinder/tmp
+     ```
+
+  5. 服务
+
+     先部署控制节点 Cinder
+
+### controller01
+
+- 安装配置
+
+  1. 数据库
+
+     ```
+     # mysql -uroot -p
+
+     MariaDB [(none)]> CREATE DATABASE cinder;
+     Query OK, 1 row affected (0.00 sec)
+
+     MariaDB [(none)]> GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'localhost' IDENTIFIED BY 'qwe123';
+     Query OK, 0 rows affected (0.00 sec)
+
+     MariaDB [(none)]> GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'%' IDENTIFIED BY 'qwe123';
+     Query OK, 0 rows affected (0.00 sec)
+
+     MariaDB [(none)]> GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'controller01' IDENTIFIED BY 'qwe123';
+     Query OK, 0 rows affected (0.00 sec)
+
+     MariaDB [(none)]> quit
+     Bye
+     ```
+
+  2. cinder 用户相关配置
+
+     ```
+     # . admin_openrc
+     ```
+
+     创建 cinder 用户
+
+     ```
+     # openstack user create --domain default --password-prompt cinder
+     User Password:
+     Repeat User Password:
+     +---------------------+----------------------------------+
+     | Field               | Value                            |
+     +---------------------+----------------------------------+
+     | domain_id           | default                          |
+     | enabled             | True                             |
+     | id                  | 812d906fb4354b28a06835990eff9d54 |
+     | name                | cinder                           |
+     | options             | {}                               |
+     | password_expires_at | None                             |
+     +---------------------+----------------------------------+
+     ```
+
+     赋权
+
+     ```
+     # openstack role add --project service --user cinder admin
+     ```
+
+     创建 cinderv2 和 cinderv3 服务实体
+
+     ```
+     # openstack service create --name cinderv2 --description "OpenStack Block Storage" volumev2
+     +-------------+----------------------------------+
+     | Field       | Value                            |
+     +-------------+----------------------------------+
+     | description | OpenStack Block Storage          |
+     | enabled     | True                             |
+     | id          | bc0ec7b23e914cca85cffd5039ae095d |
+     | name        | cinderv2                         |
+     | type        | volumev2                         |
+     +-------------+----------------------------------+
+
+     # openstack service create --name cinderv3 --description "OpenStack Block Storage" volumev3
+     +-------------+----------------------------------+
+     | Field       | Value                            |
+     +-------------+----------------------------------+
+     | description | OpenStack Block Storage          |
+     | enabled     | True                             |
+     | id          | 4db43df009874b34ab0fe0756ca1cdf6 |
+     | name        | cinderv3                         |
+     | type        | volumev3                         |
+     +-------------+----------------------------------+
+     ```
+
+     创建 Block Storage service 的 API endpoints
+
+     V2 的
+
+     ```
+     # openstack endpoint create --region RegionOne volumev2 public http://controller01:8776/v2/%\(project_id\)s
+     +--------------+--------------------------------------------+
+     | Field        | Value                                      |
+     +--------------+--------------------------------------------+
+     | enabled      | True                                       |
+     | id           | 6c35ddebf75d42899d031caa0c1f0ac5           |
+     | interface    | public                                     |
+     | region       | RegionOne                                  |
+     | region_id    | RegionOne                                  |
+     | service_id   | bc0ec7b23e914cca85cffd5039ae095d           |
+     | service_name | cinderv2                                   |
+     | service_type | volumev2                                   |
+     | url          | http://controller01:8776/v2/%(project_id)s |
+     +--------------+--------------------------------------------+
+
+     # openstack endpoint create --region RegionOne volumev2 internal http://controller01:8776/v2/%\(project_id\)s
+     +--------------+--------------------------------------------+
+     | Field        | Value                                      |
+     +--------------+--------------------------------------------+
+     | enabled      | True                                       |
+     | id           | e4420cc875eb4f708d9e1c332b3fd655           |
+     | interface    | internal                                   |
+     | region       | RegionOne                                  |
+     | region_id    | RegionOne                                  |
+     | service_id   | bc0ec7b23e914cca85cffd5039ae095d           |
+     | service_name | cinderv2                                   |
+     | service_type | volumev2                                   |
+     | url          | http://controller01:8776/v2/%(project_id)s |
+     +--------------+--------------------------------------------+
+
+     # openstack endpoint create --region RegionOne volumev2 admin http://controller01:8776/v2/%\(project_id\)s
+     +--------------+--------------------------------------------+
+     | Field        | Value                                      |
+     +--------------+--------------------------------------------+
+     | enabled      | True                                       |
+     | id           | b55ed84172d448daaae8b299fa5ce223           |
+     | interface    | admin                                      |
+     | region       | RegionOne                                  |
+     | region_id    | RegionOne                                  |
+     | service_id   | bc0ec7b23e914cca85cffd5039ae095d           |
+     | service_name | cinderv2                                   |
+     | service_type | volumev2                                   |
+     | url          | http://controller01:8776/v2/%(project_id)s |
+     +--------------+--------------------------------------------+
+     ```
+
+     V3 的
+
+     ```
+     # openstack endpoint create --region RegionOne volumev3 public http://controller01:8776/v3/%\(project_id\)s
+     +--------------+--------------------------------------------+
+     | Field        | Value                                      |
+     +--------------+--------------------------------------------+
+     | enabled      | True                                       |
+     | id           | 307503482bbd48f7946cf1b29cab46b7           |
+     | interface    | public                                     |
+     | region       | RegionOne                                  |
+     | region_id    | RegionOne                                  |
+     | service_id   | 4db43df009874b34ab0fe0756ca1cdf6           |
+     | service_name | cinderv3                                   |
+     | service_type | volumev3                                   |
+     | url          | http://controller01:8776/v3/%(project_id)s |
+     +--------------+--------------------------------------------+
+
+     # openstack endpoint create --region RegionOne volumev3 internal http://controller01:8776/v3/%\(project_id\)s
+     +--------------+--------------------------------------------+
+     | Field        | Value                                      |
+     +--------------+--------------------------------------------+
+     | enabled      | True                                       |
+     | id           | fcbbbb2f5bd643798ffe43f063a4da1b           |
+     | interface    | internal                                   |
+     | region       | RegionOne                                  |
+     | region_id    | RegionOne                                  |
+     | service_id   | 4db43df009874b34ab0fe0756ca1cdf6           |
+     | service_name | cinderv3                                   |
+     | service_type | volumev3                                   |
+     | url          | http://controller01:8776/v3/%(project_id)s |
+     +--------------+--------------------------------------------+
+
+     # openstack endpoint create --region RegionOne volumev3 admin http://controller01:8776/v3/%\(project_id\)s
+     +--------------+--------------------------------------------+
+     | Field        | Value                                      |
+     +--------------+--------------------------------------------+
+     | enabled      | True                                       |
+     | id           | 765308ee34a04f948b779bd8d78671a5           |
+     | interface    | admin                                      |
+     | region       | RegionOne                                  |
+     | region_id    | RegionOne                                  |
+     | service_id   | 4db43df009874b34ab0fe0756ca1cdf6           |
+     | service_name | cinderv3                                   |
+     | service_type | volumev3                                   |
+     | url          | http://controller01:8776/v3/%(project_id)s |
+     +--------------+--------------------------------------------+
+     ```
+
+  3. 组件
+
+     ```
+     # yum install openstack-cinder -y
+     ```
+
+  4. 配置
+
+     ```
+     # vim /etc/cinder/cinder.conf
+     ```
+
+     数据库
+
+     ```
+     [database]
+     ...
+     connection = mysql+pymysql://cinder:qwe123@controller01/cinder
+     ```
+
+     RabbitMQ
+
+     ```
+     [DEFAULT]
+     ...
+     transport_url = rabbit://openstack:qwe123@controller01
+     ```
+
+     Keystone
+
+     ```
+     [DEFAULT]
+     ...
+     auth_strategy = keystone
+     ...
+     [keystone_authtoken]
+     ...
+     auth_uri = http://controller01:5000
+     auth_url = http://controller01:35357
+     memcached_servers = controller01:11211
+     auth_type = password
+     project_domain_name = default
+     user_domain_name = default
+     project_name = service
+     username = cinder
+     password = qwe123
+     ```
+
+     my_ip
+
+     ```
+     [DEFAULT]
+     ...
+     my_ip = 10.0.0.11
+     ```
+
+     锁路径
+
+     ```
+     [oslo_concurrency]
+     ...
+     lock_path = /var/lib/cinder/tmp
+     ```
+
+     初始化块存储数据库
+
+     ```
+     # sh -c "cinder-manage db sync" cinder
+     ```
+
+  5. 配置 nova 使用块存储
+
+     ```
+     # vim /etc/nova/nova.conf
+     ...
+     [cinder]
+     os_region_name = RegionOne
+     ```
+
+  6. 服务
+
+     回到块存储节点 block01 启动 cinder 服务
+
+     ```
+     [root@block01 ~]# systemctl enable openstack-cinder-volume.service target.service
+
+     [root@block01 ~]# systemctl restart openstack-cinder-volume.service target.service
+     ```
+
+     控制节点继续如下操作
+
+     ```
+     # systemctl restart openstack-nova-api.service
+
+     # systemctl enable openstack-cinder-api.service openstack-cinder-scheduler.service
+
+     # systemctl start openstack-cinder-api.service openstack-cinder-scheduler.service
+     ```
+
+- Install and configure the backup service
+https://docs.openstack.org/cinder/pike/install/cinder-backup-install-rdo.html
+
+- 验证
+
+  1. 列出服务组件以验证是否每个进程都成功启动
+
+     ```
+     # openstack volume service list
+     +------------------+--------------+------+---------+-------+----------------------------+
+     | Binary           | Host         | Zone | Status  | State | Updated At                 |
+     +------------------+--------------+------+---------+-------+----------------------------+
+     | cinder-volume    | block01@lvm  | nova | enabled | up    | 2019-01-29T03:31:29.000000 |
+     | cinder-scheduler | controller01 | nova | enabled | up    | 2019-01-29T03:31:29.000000 |
+     +------------------+--------------+------+---------+-------+----------------------------+
+     ```

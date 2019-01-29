@@ -1351,7 +1351,7 @@ header:
      enabled=True
      vncserver_listen=0.0.0.0
      vncserver_proxyclient_address=$my_ip
-     novncproxy_base_url=http://controller01:6080/vnc_auto.html
+     novncproxy_base_url=http://10.0.0.11:6080/vnc_auto.html
      ```
 
      Glance 对接
