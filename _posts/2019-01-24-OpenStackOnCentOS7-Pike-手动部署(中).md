@@ -1131,7 +1131,8 @@ header:
      ```
 
 - Install and configure the backup service
-https://docs.openstack.org/cinder/pike/install/cinder-backup-install-rdo.html
+
+  https://docs.openstack.org/cinder/pike/install/cinder-backup-install-rdo.html
 
 - 验证
 
