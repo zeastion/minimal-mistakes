@@ -10,7 +10,7 @@ header:
   teaser: /assets/images/openstacklogo.jpeg
 ---
 
-> Ceilometer
+> Ceilometer & Heat
 
 ## Ceilometer
 
@@ -341,7 +341,7 @@ header:
      ...
      auth_url = http://controller01:5000
      auth_url = http://controller01:35357
-     memcached_servers = controller:11211
+     memcached_servers = controller01:11211
      auth_type = password
      project_domain_id = default
      user_domain_id = default
@@ -439,6 +439,54 @@ header:
 
      ```
      # systemctl restart openstack-glance-api.service openstack-glance-registry.service
+     ```
+
+- 验证
+
+  1. 下载镜像
+
+     ```
+     # wget http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
+     ```
+
+  2. 上传镜像
+
+     ```
+     # openstack image create "cirros-0.4.0" \
+     --file cirros-0.4.0-x86_64-disk.img --disk-format qcow2 \
+     --container-format bare --public
+     ```
+
+  3. 查看记录
+
+     ```
+     # gnocchi resource list --type  image
+     +--------------------------------------+-------+----------------------------------+---------+--------------------------------------+----------------------------------+----------+----------------------------------+--------------+-------------------------------------------------------------------+------------------+-------------+--------------+
+     | id                                   | type  | project_id                       | user_id | original_resource_id                 | started_at                       | ended_at | revision_start                   | revision_end | creator                                                           | container_format | disk_format | name         |
+     +--------------------------------------+-------+----------------------------------+---------+--------------------------------------+----------------------------------+----------+----------------------------------+--------------+-------------------------------------------------------------------+------------------+-------------+--------------+
+     | 91d84be9-540d-48bd-9555-f7f337df60de | image | 0a7aef2ccc8b4a71b80534b7c43fe8ab | None    | 91d84be9-540d-48bd-9555-f7f337df60de | 2019-02-18T06:38:38.468978+00:00 | None     | 2019-02-18T06:38:38.469085+00:00 | None         | f6f0919a4dac4044a3e4fccbeeb85be3:5f81944c65c346efa9ff8e0753ba795f | bare             | qcow2       | cirros-0.4.0 |
+     +--------------------------------------+-------+----------------------------------+---------+--------------------------------------+----------------------------------+----------+----------------------------------+--------------+-------------------------------------------------------------------+------------------+-------------+--------------+
+
+     # gnocchi resource show 91d84be9-540d-48bd-9555-f7f337df60de
+     +-----------------------+-------------------------------------------------------------------+
+     | Field                 | Value                                                             |
+     +-----------------------+-------------------------------------------------------------------+
+     | created_by_project_id | 5f81944c65c346efa9ff8e0753ba795f                                  |
+     | created_by_user_id    | f6f0919a4dac4044a3e4fccbeeb85be3                                  |
+     | creator               | f6f0919a4dac4044a3e4fccbeeb85be3:5f81944c65c346efa9ff8e0753ba795f |
+     | ended_at              | None                                                              |
+     | id                    | 91d84be9-540d-48bd-9555-f7f337df60de                              |
+     | metrics               | image.download: 01914954-e679-4821-b665-0a5f5cbfae88              |
+     |                       | image.serve: 3e7cbfa4-9b71-4c42-aec4-017d03203d68                 |
+     |                       | image.size: d9e359a1-0b5e-46e6-a2fd-9fa54f1a1eca                  |
+     | original_resource_id  | 91d84be9-540d-48bd-9555-f7f337df60de                              |
+     | project_id            | 0a7aef2ccc8b4a71b80534b7c43fe8ab                                  |
+     | revision_end          | None                                                              |
+     | revision_start        | 2019-02-18T06:38:38.469085+00:00                                  |
+     | started_at            | 2019-02-18T06:38:38.468978+00:00                                  |
+     | type                  | image                                                             |
+     | user_id               | None                                                              |
+     +-----------------------+-------------------------------------------------------------------+
      ```
 
 ## Ceilometer 对接 Neutron
