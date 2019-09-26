@@ -18,3 +18,6 @@ _posts/._sync_57f6f60294ae.db
 _posts/.owncloudsync.log
 _posts/._sync_57f6f60294ae.db-shm
 _posts/._sync_57f6f60294ae.db-wal
+*.db
+*.db-shm
+*.db-wal
